@@ -1,4 +1,15 @@
-# 05/01/2025
+# DNS interne avec BIND9 et conflits dnsmasq
+
+*12/01/2025*
+
+Dans le cadre de mon contrat actuel en tant qu’ingénieur système, j’ai mis en place un DNS interne en utilisant **BIND9**. Une ressource particulièrement utile qui m’a aidé dans cette tâche : [tutos.eu](https://www.tutos.eu/3446).
+
+Pendant cette configuration, j’ai également rencontré un problème avec **NetworkManager**. En investiguant, j’ai découvert qu’il lançait une instance de **dnsmasq**. En inspectant le service et le binaire de **dnsmasq**, j’ai constaté, grâce à l’outil `ldd`, que certaines bibliothèques partagées n’étaient pas accessibles, car elles se trouvaient dans un répertoire géré par **Snap**. Pour résoudre ce problème, j’ai utilisé **ldconfig** afin de rendre ces répertoires accessibles au système.
+
+***
+# Préparation LPIC-1 : Pratique, dépannage et scripting
+
+*05/01/2025*
 
 Après avoir terminé la lecture du précédent livre, qui s'inscrit dans une série d'ouvrages sur l'administration Linux, je me suis fixé comme objectif : obtenir la certification LPIC-1. 
 
@@ -26,7 +37,9 @@ done <$1
 
 ***
 
-# 26/12/2024
+# Serveur Puppet et sécurité Linux
+
+*26/12/2024*
 
 Après avoir lu le livre [Linux - De la ligne de commande à l'administration système](https://www.editions-eni.fr/livre/linux-de-la-ligne-de-commande-a-l-administration-systeme-9782409045929), j'ai mis en place un serveur et un client Puppet avec un manifest appliquant une configuration minimaliste. Ce livre m’a permis m'a permis de réviser des principes fondamentaux de la sécurité Linux (en plus des droits d'accès) notamment :
 
