@@ -1,3 +1,18 @@
+# Suite du DNS : dnsmasq et systemd-resolved
+
+*19/01/2025*
+
+Pour faire suite à la semaine dernière, on a réalisé qu'on utiliser bind9 alors que dans notre configuration actuelle, **NetworkManager** utilise déjà dnsmasq dans un de ses sous-processus. Après réflexion, on a donc décidé de configurer notre DNS interne avec **dnsmasq**.
+
+Une ressource qui m’a particulièrement aidé dans cette tâche : [linuxtricks](https://www.linuxtricks.fr/wiki/dnsmasq-le-serveur-dns-et-dhcp-facile-sous-linux).
+
+Points importants rencontrés :
+
+- **Conflit avec systemd-resolved** : j’ai remarqué que **systemd-resolved** et **dnsmasq** entraient en conflit car ils écoutaient tous les deux sur le port 53.
+
+- **Solution** : j’ai configuré dnsmasq pour écouter sur le port **5353**, et redirigé les requêtes DNS spécifiques via **systemd-resolved** vers l’interface où je souhaitais qu’il y ait le DNS de dnsmasq.
+
+***
 # DNS interne avec BIND9 et conflits dnsmasq
 
 *12/01/2025*
