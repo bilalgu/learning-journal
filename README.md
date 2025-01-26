@@ -1,3 +1,18 @@
+## Migration CentOS 7 vers Rocky Linux 8
+
+*26/01/2025*
+
+Toujours dans mon activité d’ingénieur système, j’ai reçu comme mission de migrer nos serveurs (actuellement en CentOS 7) en Rocky Linux 8. Pour éviter tout impact en production, j’ai d’abord effectué ces tests sur une machine virtuelle qui se rapproche le plus des conditions en production.
+
+Les ressources qui m’ont particulièrement aidées :
+
+- [Guide officiel Rocky Linux : migrate2rocky](https://docs.rockylinux.org/guides/migrate2rocky/)
+- [Guide de migration CentOS vers Rocky Linux](https://gist.github.com/Trogvars/d93f8e370e9d01d4afc6e2a7e8c69ab2)
+- [Migrate CentOS 7/8 to Rocky Linux 8](https://www.golinuxcloud.com/migrate-centos-to-rocky-linux/)
+
+La plus grande difficulté dans cette migration c'est les **problèmes de dépendances** des différents paquets… (et il y en a un paquet). Il faut aussi s'assurer de bien **changer les dépôts** correctement.
+
+***
 # Suite du DNS : dnsmasq et systemd-resolved
 
 *19/01/2025*
