@@ -1,3 +1,20 @@
+# En production : CentOS 7 --> Rocky 8
+
+*02/02/2025*
+
+Après les tests effectués sur VMs la semaine dernière, j’ai enfin appliqué la migration en **production**. Notre cluster tournant sous **CentOS 7** est maintenant en **Rocky Linux 8** !
+
+Mais tout ne s’est pas passé comme prévu…
+
+L’un des problèmes les plus inattendus a été l’échec de `dnf distrosync`, qui affichait une erreur indiquant un manque d’espace sur le **système de fichiers racine**. Après quelques vérifications avec `du`, j’ai identifié le coupable : **/var/cache/dnf**.
+
+Solution trouvée :
+
+- J’ai déplacé **/var/cache/dnf** vers un stockage **NFS**.
+- Et j’ai créé un **lien symbolique** avec `ln -s` pour pointer vers ce nouvel emplacement.
+
+***
+
 # Migration CentOS 7 vers Rocky Linux 8
 
 *26/01/2025*
