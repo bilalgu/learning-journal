@@ -1,3 +1,15 @@
+# Formation et certification LPIC-1
+
+*09/02/2025*
+
+Cette semaine j'ai eu l'occasion de pas mal me former. J’ai terminé le livre **[Linux - Préparation à la certification LPIC-1 (examens LPI 101 et LPI 102)](https://www.editions-eni.fr/livre/linux-preparation-a-la-certification-lpic-1-examens-lpi-101-et-lpi-102-7e-edition-9782409043109)** et mis en pratique les connaissances acquises. Prochaine étape : **passer l’examen LPI 101** (inscription déjà faite !).
+
+En attendant, j’ai attaqué une autre lecture : **[UNIX and Linux System Administration Handbook](https://www.amazon.com/UNIX-Linux-System-Administration-Handbook/dp/0134277554)**. 
+
+Petite découverte : le parcours de **Evi Nemeth**, pionnière dans le monde UNIX/Linux, qui a marqué plusieurs générations d’administrateurs système.
+
+***
+
 # En production : CentOS 7 --> Rocky 8
 
 *02/02/2025*
