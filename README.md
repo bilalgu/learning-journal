@@ -1,3 +1,19 @@
+# Python, iptables et LPI 101
+
+*16/02/2025*
+
+Une semaine riche !
+
+Dans le cadre de mon travail, j’ai eu pour mission de sécuriser un microservice. Première étape : analyser son fonctionnement, comprendre son code et sa structure. J'ai donc fait pas mal de python ! 
+
+J’ai notamment vu comment gérer des conteneurs Docker via des modules Python, mais aussi comment appliquer des règles iptables directement depuis un script.
+
+En parlant d’iptables, j’ai approfondi mes connaissances sur son sujet. Une ressource qui m'a aidé : [iptables : the two variants and their relationship with nftables](https://developers.redhat.com/blog/2020/08/18/iptables-the-two-variants-and-their-relationship-with-nftables).
+
+Et enfin la semaine ce clôture samedi matin, où j’ai passé et validé l’examen LPI 101 : 580/800 (soit 14,5/20)
+
+***
+
 # Formation et certification LPIC-1
 
 *09/02/2025*
