@@ -4,13 +4,13 @@
 
 Cette semaine j'ai eu l'opportunité de consacré pas mal de temps à la préparation de l'examen LPI 102, la deuxième partie de la certification LPIC-1. 
 
-Pour me préparer, je me suis entraîné sur des TPs et des QCMs que j'ai notamment générer via l'IA (Claude). Voici un exemple de [prompt](Ressources/prompt-claude-lpi102).
+Pour me préparer, je me suis entraîné sur des TPs et des QCMs que j'ai notamment générer via l'IA (Claude). Voici un exemple de [prompt](Ressources/prompt-claude-lpi102.md).
 
-Lors de mes entraînements, je me suis attardé sur le concept de métrique dans les tables de routage. Ce [cas d'étude](Ressources/metric-route) m'a permis d'en apprendre plus sur le sujet.
+Lors de mes entraînements, je me suis attardé sur le concept de métrique dans les tables de routage. Ce [cas d'étude](Ressources/metric-route.md) m'a permis d'en apprendre plus sur le sujet.
 
 En fin de semaine, j'ai décidé de passer l'examen LPI 102. Comme pour le 101, je me suis rendu dans un centre d'examen à Paris. Et bonne nouvelle : j'ai réussi l'épreuve avec un score de 620/800, soit 15,5/20 ! [(La certification)](https://www.credly.com/badges/14a172f1-0f1e-479b-bd35-54e9106316a4/public_url)
 
-En parallèle, j'ai également progressé sur le sujet iptables/nftables abordé la semaine dernière. J'ai fait une [documentation](nftables-doc) détaillant les configurations que j'ai mises en place. L'objectif est que mon collègue puisse facilement comprendre et prendre le relais.
+En parallèle, j'ai également progressé sur le sujet iptables/nftables abordé la semaine dernière. J'ai fait une [documentation](Ressources/nftables-doc.md) détaillant les configurations que j'ai mises en place. L'objectif est que mon collègue puisse facilement comprendre et prendre le relais.
 
 ***
 
