@@ -1,3 +1,17 @@
+# Hardware et petite sœur en détresse
+
+*02/03/2025*
+
+Après avoir décroché la certification LPIC-1, j'ai entamé la lecture de [LINUX - Préparation à la certification LPIC-2](https://www.editions-eni.fr/livre/linux-preparation-a-la-certification-lpic-2-examens-lpi-201-et-lpi-202-5e-edition-9782409038303). Pour l'instant, j'ai vu tout ce qui concerne le démarrage d'un système et les différents périphériques de stockage (NVMe, RAID, etc.). C'est marrant comme à chaque relecture, je comprends ces concepts de mieux en mieux !
+
+Au travail, on m'a confié une nouvelle mission : démonter un ordinateur pour y installer une nouvelle carte graphique, puis le configurer dans notre DNS afin de l'utiliser comme serveur hébergeant un micro-service. Le côté hardware, c'est un domaine où j'ai peu d'expérience : savoir où placer la carte graphique et comment la connecter avec les nappes, c'était une grande première pour moi. Encore une occasion d'apprendre !
+
+Et pour finir la semaine, ma petite sœur m'a appelé à la rescousse ce weekend. Son mini-PC [Blackview MP60](https://www.blackview.fr/products/blackview-mp60) refusait de démarrer sous Windows, restant bloqué sur un écran de dépannage après le BIOS. J'ai réussi à booter l'ordinateur avec un SystemRescue, puis à me connecter dessus en SSH pour analyser le disque contenant l'OS Windows. J'ai utilisé des commandes comme `lsblk`, `blkid`, `fdisk` et `badblocks`. Et en les lançant dans un `tmux`, j'ai pu me déconnecter de ma session SSH sans interrompre les interrompre.
+
+Ce cas m'a fait prendre conscience des progrès que j'ai réalisés. Il y a quelques mois à je n'aurais jamais été capable de faire ça !
+
+***
+
 # Fin certification LPIC-1 
 
 *23/02/2025*
