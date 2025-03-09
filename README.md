@@ -1,3 +1,21 @@
+# Préparation LPIC-2
+
+*09/03/2025*
+
+Une semaine plus tranquille que les précédentes, ce qui m'a permis de me concentrer sur la lecture du livre de préparation à la certification LPIC-2. J'en suis à 60% de cet ouvrage de 882 pages.
+
+Parmi les principaux sujets que j'ai vu cette semaine :
+
+- Configuration réseau
+- Maintenance système
+- Noyau Linux
+- Planification des ressources
+- Serveurs de noms de domaine (DNS)
+
+J'essaie de mettre en pratique au fur et à mesure les connaissances acquises. Actuellement, je suis sur la mise en place d'un serveur DNS de cache (appelé aussi "resolver" ou "caching name server").
+
+***
+
 # Hardware et petite sœur en détresse
 
 *02/03/2025*
