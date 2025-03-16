@@ -1,3 +1,23 @@
+# AC Adapter
+
+*16/03/2025* 
+
+Une semaine où j'ai jonglé entre formation, résolution de tickets et missions confiées. 
+
+Un cas intéressant cette semaine : un utilisateur est venu car son laptop ne se chargeait plus malgré le branchement de l'adaptateur secteur. En analysant la situation, on s'est rendu compte que l'adaptateur n'était pas assez puissant (130W) alors que le laptop nécessitait 180W. 
+
+Pour résoudre le problème on a :
+
+1. Ouvert le PC et démonté la batterie
+2. Remis en place la batterie
+3. Branché l'adaptateur secteur 
+
+Et là, surprise ! La batterie a été détectée et a commencé à se charger. 
+
+Avant ce cas, je ne pensais pas que la puissance d'un adaptateur jouait un rôle aussi crucial pour un bon fonctionnement de PC portable !
+
+***
+
 # Préparation LPIC-2
 
 *09/03/2025*
