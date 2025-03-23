@@ -1,3 +1,17 @@
+# Fin de lecture
+
+*23/03/2025*
+
+100% de la lecture du livre de préparation à la certification LPIC-2 terminé (~900 pages) ! Tout en mettant en pratique chaque chapitre, les derniers modules qui m'ont marqué :
+
+- **Gestion des clients réseau** : (OpenLDAP, DHCP)
+- **Serveurs de fichiers** : (Samba, NFS)
+- **Services e-mail** : Configuration de Postfix
+
+La prochaine étape : déconstruire mes notes et préparer l'examen 201. 
+
+***
+
 # AC Adapter
 
 *16/03/2025* 
