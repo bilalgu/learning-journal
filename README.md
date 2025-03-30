@@ -1,3 +1,17 @@
+# Capabilites et firewall
+
+*30/03/2025*
+
+Cette semaine je n'ai pas eu l'occasion de me former car j'étais à fond dans le travail, mais j'ai appris et pratiqué plein de choses intéressantes.
+
+J'ai notamment vu les "capabilities" Linux, un concept intéressant qui décompose les droits root en plusieurs "petits droits" qu'on peut ensuite attribuer à des binaires ou à des processus spécifiques.
+
+Par exemple, si je souhaite manipuler des règles iptables via un script Python, au lieu de le lancer avec les droits root (ce qui risquerait de créer des conflits avec l'arborescence de fichiers créée par Python), je peux simplement donner la capability `CAP_NET_ADMIN` au binaire Python. Même si ça crée potentiellement un trou de sécurité dans le sens où n'importe qui exécutant Python pourrait interférer avec les règles du firewall.
+
+J'ai aussi vu l'importance de la règle nft/iptables `ct state ESTABLISHED,RELATED accept`. Sans ça, les requêtes DNS ne fonctionnent pas correctement !
+
+***
+
 # Fin de lecture
 
 *23/03/2025*
