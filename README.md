@@ -1,3 +1,92 @@
+## NAT et iptables
+
+*06/04/2025*
+
+Toujours dans la continuité de la semaine dernière : on reste dans le thème des firewalls — mais cette fois-ci, avec un cas concret de NAT.
+
+J'ai voulu expérimenter la mise en place d’un petit réseau virtuel entre deux machines, pour permettre à une VM Rocky Linux d’accéder à Internet en passant par une VM Debian agissant comme routeur NAT.
+
+- VM Debian a deux interfaces réseau :
+    - une en NAT via VirtualBox
+    - une en réseau privé hôte (connexion avec Rocky)
+        
+- VM Rocky Linux a une seule interface, en réseau privé hôte
+
+Il faut d'abord activer le forwarding pour que le noyau Linux autorise le passage de paquets entre interfaces réseau.
+
+```bash
+# Activer temporairement
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# Activer de manière permanente
+vi /etc/sysctl.conf
+# → décommenter ou ajouter : net.ipv4.ip_forward = 1
+```
+
+On indique à Rocky que Debian est sa passerelle par défaut :
+
+```bash
+ip route add default via 192.168.56.8 dev enp0s3
+```
+
+Après cette configuration, Debian pouvait bien faire un ping vers l’extérieur (`ping 8.8.8.8`), mais Rocky… non :
+
+```bash
+[root@rocky ~]# ping 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) octets de données.
+^C
+--- statistiques ping 8.8.8.8 ---
+2 paquets transmis, 0 reçus, 100% packet loss
+```
+
+Rocky envoie bien la requête vers 8.8.8.8 → Debian la relaie vers Internet, mais… le paquet garde comme IP source l’adresse privée de Rocky (192.168.56.9). Résultat : le serveur tente de répondre à une adresse qui n’existe pas sur Internet. D’où l’absence de réponse.
+
+**Solution : MASQUERADE**
+
+Cette règle a tout débloqué ! :
+
+```bash
+iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
+```
+
+De  cette façon, Debian remplace l’adresse source des paquets sortants par sa propre IP sur l’interface NAT (`10.0.2.15`). Ainsi, les réponses peuvent revenir sans problème, et Debian les retransmet ensuite à Rocky.
+
+```bash
+[root@rocky ~]# ping -c 3 8.8.8.8
+64 octets de 8.8.8.8 : icmp_seq=1 ttl=61 temps=9.39 ms
+64 octets de 8.8.8.8 : icmp_seq=2 ttl=61 temps=6.27 ms
+64 octets de 8.8.8.8 : icmp_seq=3 ttl=61 temps=11.5 ms
+```
+
+On peut le voir de manière plus concrète avec tcpdump (je fais un `ping 8.8.8.8` via Rocky).
+
+Avant la règle NAT :
+
+```bash
+root@debian:~# tcpdump -i enp0s3 -n host 8.8.8.8
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on enp0s3, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+15:56:58.962831 IP 192.168.56.9 > 8.8.8.8: ICMP echo request, id 9, seq 1, length 64
+15:56:59.971352 IP 192.168.56.9 > 8.8.8.8: ICMP echo request, id 9, seq 2, length 64
+15:57:00.995193 IP 192.168.56.9 > 8.8.8.8: ICMP echo request, id 9, seq 3, length 64
+```
+
+Après la règle NAT :
+
+```bash
+root@debian:~# tcpdump -i enp0s3 -n host 8.8.8.8
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on enp0s3, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+15:56:08.551268 IP 10.0.2.15 > 8.8.8.8: ICMP echo request, id 8, seq 1, length 64
+15:56:08.556382 IP 8.8.8.8 > 10.0.2.15: ICMP echo reply, id 8, seq 1, length 64
+15:56:09.553435 IP 10.0.2.15 > 8.8.8.8: ICMP echo request, id 8, seq 2, length 64
+15:56:09.562202 IP 8.8.8.8 > 10.0.2.15: ICMP echo reply, id 8, seq 2, length 64
+15:56:10.555232 IP 10.0.2.15 > 8.8.8.8: ICMP echo request, id 8, seq 3, length 64
+15:56:10.569560 IP 8.8.8.8 > 10.0.2.15: ICMP echo reply, id 8, seq 3, length 64
+```
+
+***
+
 # Capabilites et firewall
 
 *30/03/2025*
