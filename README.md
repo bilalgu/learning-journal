@@ -1,4 +1,4 @@
-## Médicat, Fortinet et Réseaux
+# Médicat, Fortinet et Réseaux
 
 *13/04/2025*
 
@@ -12,7 +12,7 @@ J'ai donc pivoté vers la lecture d'un nouveau livre (pour changer, haha) : [Ré
 
 ***
 
-## NAT et iptables
+# NAT et iptables
 
 *06/04/2025*
 
