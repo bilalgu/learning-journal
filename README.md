@@ -1,3 +1,17 @@
+## Médicat, Fortinet et Réseaux
+
+*13/04/2025*
+
+Cette semaine a été "un peu moins dense", car je me suis principalement concentré sur la rédaction d'un long rapport de plus d'une trentaine de pages.
+
+Au travail, j'ai réinstallé et configuré plusieurs machines. J'ai même pu récupérer des ordinateurs destinés à la réforme qui présentaient "seulement" des problèmes de BIOS ou de batterie. Un super outil qui m'a aidé et que je recommande vivement est [Medicat](https://medicatusb.com/) - une véritable boîte à outils pour le diagnostic et la réparation de systèmes.
+
+Par curiosité, la semaine dernière j'ai commencé à me former via la plateforme Fortinet, notamment sur la certification [Fortinet Certified Fundamentals Cybersecurity](https://training.fortinet.com/local/staticpage/view.php?page=fcf_cybersecurity). Mais honnêtement, après quelques heures, mon enthousiasme était limité. J'ai trouvé que cela "apportait peu de valeur" au vu de ma situation actuelle, comparé à d'autres actions que je pouvais entreprendre.
+
+J'ai donc pivoté vers la lecture d'un nouveau livre (pour changer, haha) : [Réseaux informatiques - Notions fondamentales](https://www.editions-eni.fr/livre/reseaux-informatiques-notions-fondamentales-10e-edition-protocoles-architectures-reseaux-sans-fil-9782409048265). J'ai tout de suite accroché à ce contenu. Mais, la question de commencer à réaliser des projets commence vraiment à me trotter dans la tête - peut-être est-il temps de passer de la théorie à plus de pratique ?
+
+***
+
 ## NAT et iptables
 
 *06/04/2025*
