@@ -1,3 +1,15 @@
+# Début de projet DevOps
+
+*20/04/2025*
+
+Pour rebondir sur la semaine précédente, après avoir passé plusieurs heures d'affilée à la lecture du livre sur les réseaux (qui est super intéressant et qui explique simplement des notions "complexes") - d'ailleurs, leur explication du modèle OSI est excellente ! - j'ai senti qu'il me manquait quand même de la pratique dans ma journée.
+
+J'ai donc finalement franchi le cap et structuré la mise en place d'un projet centré sur l'apprentissage d'un domaine qui m'intéresse de plus en plus : le DevOps. Ce projet intègre des technologies d'Infrastructure as Code, de Configuration Management, de Conteneurisation et de Déploiement Continu (CI/CD).
+
+Malheureusement, mes autres contraintes et responsabilités font que ce projet passe en dernière priorité :'(. Je n'ai pu avancer dessus que quelques soirs, mais au stade où j'en suis, j'ai réussi avec Terraform à créer une instance EC2 AWS avec un security group me permettant de me connecter en SSH avec une clé - et tout ça juste avec un `terraform apply` !
+
+***
+
 # Médicat, Fortinet et Réseaux
 
 *13/04/2025*
