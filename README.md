@@ -1,3 +1,24 @@
+# Ansible et provisionnement automatique
+
+*27/04/2025*
+
+Au-delà de mon travail d'ingénieur système et cybersécurité, où j'ai dû m'engouffrer dans un code Python à plus de 1300 lignes qui interagit avec d'autres gros scripts pour déboguer un service, j'ai pu avancer sur mon projet cette semaine !
+
+J'ai franchi plusieurs étapes :
+
+1. Mise en ligne du projet sur GitHub
+2. Provisionnement automatique d'une VM via Terraform
+3. Configuration de la VM avec Ansible pour installer Docker
+4. Déploiement d'un conteneur à partir d'un Dockerfile qui lance un site web statique Nginx (toujours avec Ansible)
+
+Un simple `terraform init`, `plan`, `apply` suivi d'un `ansible-playbook -i inventory.ini playbook.yml` et boum ! Tout se déploie automatiquement.
+
+À chaque étape, j'ai essayé de documenter proprement le projet avec un README. Pour voir l'avancée actuelle du projet, voici le [dernier commit](https://github.com/bilalgu/devops-bootstrap/tree/0e430004dda4da47ca23e1e58c62cbcd006a6d24).
+
+Mon prochain challenge : mettre en place une pipeline CI/CD avec GitHub Actions. L'objectif est que chaque push sur la branche main qui modifie certains fichiers dans l'arborescence déclenche automatiquement le déploiement sur ma VM.
+
+***
+
 # Début de projet DevOps
 
 *20/04/2025*
