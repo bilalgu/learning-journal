@@ -1,3 +1,17 @@
+# Release et fail2ban
+
+*04/05/2025*
+
+J'ai pu pas mal avancer dans mon projet ! J'ai mis en place une pipeline CI/CD avec GitHub Actions (d'ailleurs j'ai dû créer une branche parallèle `ci/test-pipeline`, que j'ai ensuite mergée dans le main tellement j'ai dû faire de tests avec les `git push`).
+
+J'ai restructuré l'ensemble, refait le README et finalisé la stack complète que j'avais imaginée pour une V1 de ce projet. J'en ai donc fait une première [release](https://github.com/bilalgu/devops-bootstrap/releases/tag/v1.0.0).
+
+Maintenant, j'ai imaginé les axes d'amélioration pour une V2 que j'ai créés dans une [roadmap](https://github.com/bilalgu/devops-bootstrap/blob/main/ROADMAP.md). Je travaille actuellement sur le partie sécurité. J'essaie de durcir la configuration SSH de la VM EC2 qui est créée automatiquement dans ma stack et aussi d'ajouter fail2ban dessus.
+
+Sauf que... je suis en train de plonger dans les regex de fail2ban en essayant de mettre en place ma propre jail, car les logs d'échecs SSH d'Amazon EC2 ne sont pas les mêmes que sur SSH classique, et ça change tout !
+
+***
+
 # Ansible et provisionnement automatique
 
 *27/04/2025*
