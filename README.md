@@ -1,4 +1,28 @@
-# Release et fail2ban
+# Regex fail2ban et aventures !
+
+*11/05/2025*
+
+Une semaine assez calme car j'étais en voyage en Arabie Saoudite à l'aventure ! J'ai tout de même profité des quelques heures libres que j'avais pour continuer à avancer sur mon projet.
+
+Toujours sur la partie sécurité, j'ai enfin pu mettre en place ma jail qui détecte les logs d'erreur SSH d'Amazon EC2. Voici à quoi ressemble le filtre que fail2ban va utiliser pour les connexions SSH :
+
+```
+[Definition]
+
+prefregex = ^.*sshd\[<F-MLFID>\d+</F-MLFID>]: <F-CONTENT>.+</F-CONTENT>$
+failregex =
+			^<F-NOFAIL>AuthorizedKeysCommand</F-NOFAIL> .+ failed, status \d+$
+			^Connection closed by .* <HOST> port \d+ \[preauth\]$
+ignoreregex =
+```
+
+Le `prefregex` fait en sorte de capturer le contenu de plusieurs lignes qui ont le même `sshd[PID]`. Ensuite, on analyse ce contenu dans `failregex` : s'il y a un enchaînement d'un `AuthorizedKeysCommand` avec un "failed status" suivi d'un "connection closed" avec une IP, alors celle-ci est détectée. En fonction du `maxretry` configuré dans ma jail, l'adresse IP sera bannie ou non.
+
+La balise `<F-NOFAIL>` est vraiment importante ici car, sans elle, comme la ligne "AuthorizedKeysCommand" ne contient pas d'adresse IP, fail2ban générerait un message d'erreur.
+
+***
+
+# Première release et fail2ban
 
 *04/05/2025*
 
