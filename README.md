@@ -1,4 +1,6 @@
-# Regex fail2ban et aventures !
+# 2025
+
+## Regex fail2ban et aventures !
 
 *11/05/2025*
 
@@ -22,7 +24,7 @@ La balise `<F-NOFAIL>` est vraiment importante ici car, sans elle, comme la lign
 
 ***
 
-# Première release et fail2ban
+## Première release et fail2ban
 
 *04/05/2025*
 
@@ -36,7 +38,7 @@ Sauf que... je suis en train de plonger dans les regex de fail2ban en essayant d
 
 ***
 
-# Ansible et provisionnement automatique
+## Ansible et provisionnement automatique
 
 *27/04/2025*
 
@@ -57,7 +59,7 @@ Mon prochain challenge : mettre en place une pipeline CI/CD avec GitHub Actions.
 
 ***
 
-# Début de projet DevOps
+## Début de projet DevOps
 
 *20/04/2025*
 
@@ -69,7 +71,7 @@ Malheureusement, mes autres contraintes et responsabilités font que ce projet p
 
 ***
 
-# Médicat, Fortinet et Réseaux
+## Médicat, Fortinet et Réseaux
 
 *13/04/2025*
 
@@ -83,7 +85,7 @@ J'ai donc pivoté vers la lecture d'un nouveau livre (pour changer, haha) : [Ré
 
 ***
 
-# NAT et iptables
+## NAT et iptables
 
 *06/04/2025*
 
@@ -172,7 +174,7 @@ listening on enp0s3, link-type EN10MB (Ethernet), snapshot length 262144 bytes
 
 ***
 
-# Capabilites et firewall
+## Capabilites et firewall
 
 *30/03/2025*
 
@@ -186,7 +188,7 @@ J'ai aussi vu l'importance de la règle nft/iptables `ct state ESTABLISHED,RELAT
 
 ***
 
-# Fin de lecture
+## Fin de lecture
 
 *23/03/2025*
 
@@ -200,7 +202,7 @@ La prochaine étape : déconstruire mes notes et préparer l'examen 201.
 
 ***
 
-# AC Adapter
+## AC Adapter
 
 *16/03/2025* 
 
@@ -220,7 +222,7 @@ Avant ce cas, je ne pensais pas que la puissance d'un adaptateur jouait un rôle
 
 ***
 
-# Préparation LPIC-2
+## Préparation LPIC-2
 
 *09/03/2025*
 
@@ -238,7 +240,7 @@ J'essaie de mettre en pratique au fur et à mesure les connaissances acquises. A
 
 ***
 
-# Hardware et petite sœur en détresse
+## Hardware et petite sœur en détresse
 
 *02/03/2025*
 
@@ -252,7 +254,7 @@ Ce cas m'a fait prendre conscience des progrès que j'ai réalisés. Il y a quel
 
 ***
 
-# Fin certification LPIC-1 
+## Fin certification LPIC-1 
 
 *23/02/2025*
 
@@ -268,7 +270,7 @@ En parallèle, j'ai également progressé sur le sujet iptables/nftables abordé
 
 ***
 
-# Python, iptables et LPI 101
+## Python, iptables et LPI 101
 
 *16/02/2025*
 
@@ -284,7 +286,7 @@ Et enfin la semaine ce clôture samedi matin, où j’ai passé et validé l’e
 
 ***
 
-# Formation et certification LPIC-1
+## Formation et certification LPIC-1
 
 *09/02/2025*
 
@@ -296,7 +298,7 @@ Petite découverte : le parcours de **Evi Nemeth**, pionnière dans le monde UNI
 
 ***
 
-# En production : CentOS 7 --> Rocky 8
+## En production : CentOS 7 --> Rocky 8
 
 *02/02/2025*
 
@@ -313,7 +315,7 @@ Solution trouvée :
 
 ***
 
-# Migration CentOS 7 vers Rocky Linux 8
+## Migration CentOS 7 vers Rocky Linux 8
 
 *26/01/2025*
 
@@ -328,7 +330,7 @@ Les ressources qui m’ont particulièrement aidées :
 La plus grande difficulté dans cette migration c'est les **problèmes de dépendances** des différents paquets… (et il y en a un paquet). Il faut aussi s'assurer de bien **changer les dépôts** correctement.
 
 ***
-# Suite du DNS : dnsmasq et systemd-resolved
+## Suite du DNS : dnsmasq et systemd-resolved
 
 *19/01/2025*
 
@@ -343,7 +345,7 @@ Points importants rencontrés :
 - **Solution** : j’ai configuré dnsmasq pour écouter sur le port **5353**, et redirigé les requêtes DNS spécifiques via **systemd-resolved** vers l’interface où je souhaitais qu’il y ait le DNS de dnsmasq.
 
 ***
-# DNS interne avec BIND9 et conflits dnsmasq
+## DNS interne avec BIND9 et conflits dnsmasq
 
 *12/01/2025*
 
@@ -352,7 +354,7 @@ Dans le cadre de mon contrat actuel en tant qu’ingénieur système, j’ai mis
 Pendant cette configuration, j’ai également rencontré un problème avec **NetworkManager**. En investiguant, j’ai découvert qu’il lançait une instance de **dnsmasq**. En inspectant le service et le binaire de **dnsmasq**, j’ai constaté, grâce à l’outil `ldd`, que certaines bibliothèques partagées n’étaient pas accessibles, car elles se trouvaient dans un répertoire géré par **Snap**. Pour résoudre ce problème, j’ai utilisé **ldconfig** afin de rendre ces répertoires accessibles au système.
 
 ***
-# Préparation LPIC-1 : Pratique, dépannage et scripting
+## Préparation LPIC-1 : Pratique, dépannage et scripting
 
 *05/01/2025*
 
@@ -382,7 +384,9 @@ done <$1
 
 ***
 
-# Serveur Puppet et sécurité Linux
+# 2024
+
+## Serveur Puppet et sécurité Linux
 
 *26/12/2024*
 
