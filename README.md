@@ -1,5 +1,26 @@
 # 2025
 
+## Documentation et nftables
+
+*18/05/2025*
+
+De retour de mon voyage, j'ai dû m'attaquer à un bon nombre de tickets qui se sont accumulés pendant la semaine et demie où j'étais absent. Mais j'ai quand même pu avancer sur mon projet :
+
+J'ai créé un dossier complet de documentation ([devops-bootstrap/docs](https://github.com/bilalgu/devops-bootstrap/tree/main/docs)) où j'ai détaillé chaque étape de mon projet jusqu'à présent :
+
+  - Provisioning
+  - Configuration
+  - Security hardening
+
+J'ai réussi à "ansibiliser" mes configurations fail2ban de la semaine dernière.
+
+J'ai également implémenté des règles de firewall avec nftables qui s'activent automatiquement au démarrage de la VM EC2 (toujours via Ansible). Pour ça j'ai :
+
+  - Créé un service systemd qui applique ces règles à chaque redémarrage
+  - Fait particulièrement attention à ne pas écraser les règles de firewall utilisées par SSH
+
+***
+
 ## Regex fail2ban et aventures !
 
 *11/05/2025*
