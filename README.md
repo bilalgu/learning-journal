@@ -1,5 +1,83 @@
 # 2025
 
+## Full stack et docker-compose
+
+*25/05/2025*
+
+Cette semaine, j'ai super bien avancé dans mon projet (et le résultat me fait kiffer !)
+
+J'ai fait évoluer l'architecture que je déploie automatiquement via Ansible vers quelque chose de beaucoup plus robuste : une stack complète orchestrée par docker-compose. L'approche est maintenant bien plus professionnelle et maintenable.
+
+La nouvelle architecture se compose de trois services :
+
+- **`web`** - Frontend statique (HTML/CSS/JS servi par Nginx)
+- **`back`** - Backend/API (Node.js avec Express)
+- **`db`** - Base de données (PostgreSQL)
+
+Cette stack se déploie entièrement via docker-compose, lui-même lancé par Ansible. 
+
+Un aspect qui m'a marqué, c'est les **health checks**. J'ai configuré un health check sur le service `db` pour que le backend ne démarre qu'une fois que PostgreSQL est prêt à accepter des connexions.
+
+```yaml
+depends_on:
+  db:
+    condition: service_healthy
+```
+
+Ça évite les erreurs de connexion au démarrage (que j'ai eues).
+
+Pour les détails techniques, j'ai documenté cette évolution dans [docs/06-architecture-v2](https://github.com/bilalgu/devops-bootstrap/blob/main/docs/06-architecture-v2.md)
+
+Et un petit aperçu du docker-compose pour finir :
+
+```yaml
+services:
+  web:
+    build: ./web
+    ports:
+      - "80:80"
+    depends_on:
+        back:
+            condition: service_started
+    networks:
+      - app-net
+  back:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_USER: appuser
+      DB_PASSWORD: mysecretpassword
+      DB_NAME: appdb
+    networks:
+      - app-net
+  db:
+    image: "postgres:alpine"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: mysecretpassword
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-net
+volumes:
+  pgdata:
+networks:
+  app-net:
+```
+
+***
 ## Documentation et nftables
 
 *18/05/2025*
