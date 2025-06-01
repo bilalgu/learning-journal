@@ -1,5 +1,49 @@
 # 2025
 
+## DevOps Bootstrap Stack
+
+*01/06/2025*
+
+Cette semaine j'ai pu faire tellement de trucs et apprendre énormément sur mon projet DevOps-Bootstrap !
+
+D'ailleurs, j'ai affiné ma réflexion par rapport à ce projet. Si je devais le présenter, je dirais que c'est un projet proche de la production qui provisionne l'infrastructure, automatise la configuration et déploie des services web sécurisés et évolutifs en utilisant des conteneurs.
+
+L'objectif c'est de construire une stack conçue pour les développeurs backend et les ingénieurs infrastructure.
+
+### Ce que j'ai réalisé cette semaine
+
+J'ai énormément avancé et j'ai pu :
+
+**1. Mettre en place un reverse proxy avec Traefik** : J'ai intégré Traefik dans ma stack (web/back/db) qui route dynamiquement :
+
+- `/` vers le service `web`
+- `/api` vers le service `back`
+
+--> [doc](https://github.com/bilalgu/devops-bootstrap/blob/main/docs/06-architecture-v2.md)
+
+**2. Introduire le monitoring en temps réel** : J'ai ajouté des métriques pour surveiller les performances au niveau des conteneurs :
+
+- `cadvisor` — expose les métriques des conteneurs et de l'hôte
+- `prometheus` — collecte ces métriques
+
+--> [doc](https://github.com/bilalgu/devops-bootstrap/blob/main/docs/07-monitoring.md)
+
+Avec ce bloc terminé, la [v2.0.0](https://github.com/bilalgu/devops-bootstrap/releases/tag/v2.0.0) est terminée !
+
+**3. Use Case : Backend API as a Service** : J'ai fini la semaine en montrant comment un développeur backend peut déployer une API (Node.js + PostgreSQL) en quelques minutes avec la Stack.
+
+--> [doc](https://github.com/bilalgu/devops-bootstrap/blob/main/docs/08-use-case-api.md)
+
+### En cours : HTTPS et domain routing
+
+Actuellement, je travaille sur l'ajout d'un accès sécurisé à tous les services via HTTPS, en utilisant un vrai nom de domaine et la génération automatique de certificats avec Let's Encrypt (via Traefik).
+
+J'ai déjà acheté le nom de domaine, mais il reste un point à automatiser : à chaque fois qu'on crée automatiquement une VM avec une nouvelle IP via Terraform, il faut encore changer manuellement le DNS dans le provider du nom de domaine.
+
+En bref, on continue d'avancer, de progresser et d'apprendre !
+
+***
+
 ## Full stack et docker-compose
 
 *25/05/2025*
