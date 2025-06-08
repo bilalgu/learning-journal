@@ -1,5 +1,46 @@
 # 2025
 
+## Réinstall RHEL : LDAP, NFS & audit
+
+*08/06/2025*
+
+Cette semaine, le "highlight" a été la réinitialisation d'un serveur Rocky vers une version spécifique avec son noyau.
+
+La post-installation du serveur : il était là le vrai challenge !
+
+- J'avais fait un backup des fichiers des interfaces réseau `/etc/sysconfig/network-scripts/ifcfg-*`. Je me suis rendu compte qu'avec SELinux activé, il fallait corriger les étiquettes avec `restorecon`. Restaurer les contextes SELinux lors de copie de fichiers, on y pense pas directement ! (D'ailleurs, faire gaffe avec la méthode de remise des fichiers d'interfaces réseau, car l'UID des connexions NMCLI change)
+
+- En parlant de backup, je me suis même fait une espèce de petit script qui fait un audit de la machine avant réinitialisation pour rapidement la remettre comme il faut :
+
+```bash
+DEST="preinstall_audit_$(date +%Y_%m_%d)"
+mkdir -p "$DEST" "$DEST/network-scripts"
+
+echo "[+] Collecte des infos dans $DEST"
+
+lsblk > "$DEST/01_lsblk.txt"
+blkid > "$DEST/02_blkid.txt"
+vgs   > "$DEST/03_vgs.txt"
+lvs   > "$DEST/04_lvs.txt"
+pvs   > "$DEST/05_pvs.txt"
+cat /etc/fstab                        > "$DEST/06_fstab.txt"
+cat /etc/exports                      > "$DEST/07_exports.txt"
+mount | grep nfs                     > "$DEST/08_nfs_mounts.txt"
+ip r                                 > "$DEST/09_ip_route.txt"
+rpm -qa                              > "$DEST/10_all_rpms.txt"
+rpm -qa | grep -Ei 'sssd|ldap|nslcd|krb5|realm' > "$DEST/11_auth_related_rpms.txt"
+cat /etc/sssd/sssd.conf              > "$DEST/12_sssd_conf.txt"
+mount                                > "$DEST/13_all_mounts.txt"
+df -h                                > "$DEST/14_df_h.txt"
+cp /etc/sysconfig/network-scripts/ifcfg-* "$DEST/network-scripts/"
+
+ls -l "$DEST"
+```
+
+- Pareil, pour remettre le serveur NFS et activer les bons services via `firewall-cmd`, ou bien remettre le LDAP en faisant attention au fichiers PAM du style `/etc/authselect/password-auth` fait toute la différence !
+
+***
+
 ## DevOps Bootstrap Stack
 
 *01/06/2025*
