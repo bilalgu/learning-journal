@@ -1,5 +1,56 @@
 # 2025
 
+## Prise de tête DNS
+
+*15/06/2025*
+
+Cette semaine, le DNS a volé mon temps ! 
+
+Je me suis creusé la tête sur un problème bien spécifique : comment faire en sorte que lorsque Ansible lance docker-compose, mon nom de domaine soit bien propagé dans la plupart des resolvers DNS (en particulier celui de Traefik), pour qu'il puisse me générer un certificat HTTPS à coup sûr.
+
+Le contexte : j'ai pris un nom de domaine sur Dynadot, et j'ai réussi via l'API Dynadot à automatiquement associer une nouvelle IP à mon domaine. Cette nouvelle IP est celle de ma VM EC2 qui est générée à chaque `terraform destroy` + `apply` (ce que je fais constamment durant mes tests).
+
+Je n'ai pas encore résolu à 100% mon problème, mais voici ce que j'ai appris :
+
+1. **La propagation DNS prend du temps**
+
+Une modification d'enregistrement DNS ne la rend pas visible immédiatement. Il faut attendre que le DNS se "propage" à travers les différents resolvers.
+
+D'ailleurs, petite astuce pour récupérer son IP publique :
+
+```bash
+curl -s ifconfig.me
+```
+
+2. **Let's Encrypt a des limites**
+
+Let's Encrypt limite le nombre de certificats pour le même nom de domaine dans un laps de temps donné.
+
+Pendant le développement, utiliser absolument l'environnement de staging ! : https://letsencrypt.org/docs/staging-environment/
+
+3. **Piège avec les variables Bash**
+
+En Bash, `$(...)` écrase les sauts de ligne, ce qui peut rendre `grep` inefficace :
+
+```bash
+LOGS=$(docker logs traefik)
+echo $LOGS | grep "ERR.*Unable to obtain"
+# → Rien ne s'affiche
+```
+
+Alors que directement :
+
+```bash
+docker logs traefik | grep "ERR.*Unable to obtain"
+# → Fonctionne correctement
+```
+
+**Ma solution actuelle**
+
+Pour contourner cette histoire de DNS, Ansible lance un script bash qui inspecte les logs du container Traefik. S'il détecte une erreur de certificat, il relance automatiquement toute la stack.
+
+***
+
 ## Réinstall RHEL : LDAP, NFS & audit
 
 *08/06/2025*
