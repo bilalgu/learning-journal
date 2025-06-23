@@ -6,11 +6,11 @@
 
 Encore une semaine riche !
 
-Notamment aux autres aspects de ma vie où j'ai dû allouer pas mal de temps, sachant que j'avais aussi mes responsabilités d'ingénieur système et cybersécurité. Mais quand j'avais du temps libre, j'ai continué à faire avancer mon projet DevOps bootstrap et j'ai attaqué (et fini !) le bloc logging et dashboards.
+Notamment dans les autres aspects de ma vie où j'ai dû allouer pas mal de temps, sachant que j'avais aussi mes responsabilités d'ingénieur système et cybersécurité. Mais quand j'avais du temps libre, j'ai continué à faire avancer mon projet DevOps bootstrap et j'ai attaqué (et fini !) le bloc logging et dashboards.
 
 **Observabilité : logging vs monitoring**
 
-Une distinction importante que j'ai mieux comprise cette semaine : le logging et les dashboards sont différents du monitoring et de l'alerting, bien que tout ça s'inscri dans le domaine de "l'observabilité". Avant d'avoir réellement mis les mains dans le cambouis, ce n'été pas évidentes pour moi.
+Une distinction importante que j'ai mieux comprise cette semaine : le logging et les dashboards sont différents du monitoring et de l'alerting, bien que tout ça s'inscri dans le domaine de "l'observabilité". Avant d'avoir réellement mis les mains dans le cambouis, ce n'était pas évident pour moi.
 
 J'ai donc mis en place la stack classique :
 
