@@ -1,5 +1,40 @@
 # 2025
 
+## Logging & dashboards
+
+*23/05/2025*
+
+Encore une semaine riche !
+
+Notamment aux autres aspects de ma vie où j'ai dû allouer pas mal de temps, sachant que j'avais aussi mes responsabilités d'ingénieur système et cybersécurité. Mais quand j'avais du temps libre, j'ai continué à faire avancer mon projet DevOps bootstrap et j'ai attaqué (et fini !) le bloc logging et dashboards.
+
+**Observabilité : logging vs monitoring**
+
+Une distinction importante que j'ai mieux comprise cette semaine : le logging et les dashboards sont différents du monitoring et de l'alerting, bien que tout ça s'inscri dans le domaine de "l'observabilité". Avant d'avoir réellement mis les mains dans le cambouis, ce n'été pas évidentes pour moi.
+
+J'ai donc mis en place la stack classique :
+
+- **Promtail** (collecte des logs)
+- **Loki** (stockage et indexation des logs)
+- **Grafana** (visualisation et dashboards)
+
+**Debugging : le piège du curl**
+
+Un point qui m'a marqué : quand j'essayais de tester certains endpoints comme `http://<EC2_PUBLIC_IP>/monitoring/grafana`, bien que dans le browser l'endpoint était fonctionnel, en ligne de commande curl me renvoyait :
+
+```http
+405 Method Not Allowed
+```
+
+La cause : curl envoie par défaut une requête de type GET, mais certains endpoints n'acceptent que des méthodes spécifiques.
+
+Solution : spécifier explicitement la méthode HTTP, par exemple :
+
+```bash
+curl -X POST ...
+```
+
+***
 ## Prise de tête DNS
 
 *15/06/2025*
