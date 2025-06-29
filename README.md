@@ -1,5 +1,27 @@
 # 2025
 
+## Kubernetes
+
+*29/06/2025*
+
+Toujours dans l'optique de me développer et d'apprendre, je suis en train de basculer doucement vers un nouveau projet que je présenterai bientôt. En pratique, je me suis confronté à plein de problèmes, et j'en ressors avec pas mal de leçons :
+
+Notamment sur Kubernetes : j'ai toujours vu ça un peu de loin, mais maintenant je commence vraiment à avoir une idée de ce que c'est.
+
+Alors oui, c'est un orchestrateur de containers, mais au fond qu'est-ce qui le différencie d'un docker-compose ?
+
+Disons que déjà, la principale différence c'est que docker-compose agit sur une seule machine alors que Kubernetes agit sur un cluster, donc un ensemble de machines.
+
+Mais résumer Kubernetes à ça est trop réducteur. Il a notamment, comparé à docker-compose :
+
+- un principe d'auto-réparation
+- un load balancing intégré
+- et une observabilité native
+
+Et comme il est lourd et difficile d'installer localement Kubernetes (c'est fait pour le cloud), on utilise généralement des versions allégées de Kubernetes comme `k3s` par exemple, et `k3d` qui permet de lancer `k3s` dans des containers.
+
+***
+
 ## Logging & dashboards
 
 *23/05/2025*
