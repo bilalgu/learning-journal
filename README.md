@@ -1,5 +1,52 @@
 # 2025
 
+## k8s-ia-bootstrap
+
+*06/07/2025*
+
+Cette semaine incarne la grosse avancée du nouveau projet que j'ai mentionné la semaine dernière : **k8s-ia-bootstrap** !
+
+### Pourquoi ce projet ?
+
+À la suite de [devops-bootstrap](https://github.com/bilalgu/devops-bootstrap), qui peut encore être développé mais où je sortais de plus en plus du 80/20 de l'apprentissage, je me suis "confronté" au marché en allant voir d'autres freelances et des CTOs, et en discutant avec eux.
+
+J'ai eu de super retours, notamment sur le fait que :
+
+> "J'axerais personnellement plus ma stack sur Kubernetes avec containers plutôt qu'ansible/packer/vm (histoire de vendre un peu de rêve)."
+
+et
+
+> "Après si tu veux te démarquer et sortir du lot, choisis-toi un secteur ou une spécialisation genre :
+> 
+> - finops, t'es là pour optimiser les coûts au max,
+> - infra pour faire tourner de l'IA,
+> - dans le contexte actuel, t'orienter vers du setup/de la migration vers des providers fr (Scaleway notamment)  
+>     Il y a beaucoup de demande sur ces 3 spés mais y'en a plein d'autres"
+
+Donc autant allier l'utile à l'agréable : aller là où il y a de la demande et aussi explorer des aspects que je ne connais pas et qui m'intriguent, notamment l'aspect "infra pour faire de l'IA".
+
+### L'objectif
+
+Je suis donc parti sur cette direction avec comme axe :
+
+> Déployer automatiquement une API IA simple (FastAPI + Hugging Face) sur un cluster Kubernetes local, avec CI/CD GitHub Actions, observabilité (Prometheus + Grafana + Loki), et sécurité de base (RBAC, secrets, network policies), pour démontrer ma capacité à builder une stack cloud-native sécurisée de bout en bout.
+
+### Le résultat
+
+Et je suis donc fier d'annoncer qu'après environ 2 semaines de travail acharné, j'ai ma release v1.0.0 !!!!! : https://github.com/bilalgu/k8s-ai-bootstrap/releases/tag/v1.0.0
+
+Une stack complète qui inclut : API IA (FastAPI + Hugging Face), CI/CD automatisé, sécurité K8s (RBAC, secrets, network policies), et observabilité (Loki + Grafana).
+
+L'objectif ? Aider les CTOs et startups à **déployer rapidement une API IA sécurisée** tout en maîtrisant les bases Kubernetes — bref, gagner du temps et éviter les erreurs manuelles.
+
+### Pour la suite
+
+Bien entendu, sur le chemin de ce développement j'ai appris pas mal de choses, notamment sur Kubernetes, l'IA, Docker, Python, le réseau (il y aura toujours des choses reliées au réseau haha).
+
+Mais à mon avis ça sera le sujet d'une nouvelle entrée car là je me rends compte que j'ai déjà pas mal écrit !
+
+***
+
 ## Kubernetes
 
 *29/06/2025*
