@@ -1,5 +1,29 @@
 # 2025
 
+## Magie du GitOps
+
+*13/07/2025*
+
+Je suis allé sous des dalles d'une salle pour installer un set de caméras de 10 000€, mais ce n'est pas le sujet !
+
+Ce qui m'a marqué cette semaine, c'est l'implémentation du GitOps avec ArgoCD et la migration de mon cluster Kubernetes local k3d vers GKE.
+
+Je ne connaissais pas du tout le GitOps avant, et le fait d'avoir pratiqué m'a vraiment donné une bonne idée de la puissance du concept.
+
+Le principe : plus besoin de faire de `kubectl apply` ! Si c'est dans Git, c'est dans le cluster ; si ce n'est pas dans Git, ça n'existe pas. Un opérateur GitOps tourne dans le cluster et synchronise automatiquement l'état entre Git et Kubernetes.
+
+Dans mon cas, l'opérateur c'est ArgoCD avec un nouveau type de ressource : les `Application`.
+
+La mise en pratique : j'ai créé un namespace `argocd`, installé ArgoCD dessus et appliqué mes fichiers d'application. À partir de là, TOUT mon cluster se synchronise avec mon dépôt Git.
+
+Ce qui rend vraiment le truc magique, c'est quand j'ai voulu migrer sur Google Kubernetes Engine. Je me suis dit "OK, ça va prendre un certain temps." Et non ! J'ai fait exactement ce que je viens de décrire et tout mon cluster local était dans le cloud. J'avais l'impression que rien ne changeait quand je faisais un `kubectl`, car l'endpoint de l'API pointait maintenant sur celui de Google et plus en local.
+
+En plus, ce qui est beau avec le DevOps, c'est que le cluster Google aussi se crée "tout seul" : juste besoin d'un `terraform apply`.
+
+J'ai documenté parfaitement tout ça (avec tous les tests GitOps qui vont bien : sync, rollback, prune) dans le fichier associé du dossier docs de mon projet : https://github.com/bilalgu/k8s-ai-bootstrap/tree/main/docs
+
+***
+
 ## k8s-ia-bootstrap
 
 *06/07/2025*
