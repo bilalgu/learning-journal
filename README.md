@@ -1,5 +1,36 @@
 # 2025
 
+## Autoscaling Kubernetes : ressources et limites
+
+*20/07/2025*
+
+Cette semaine, j'ai ajouté l'autoscaling horizontal à ma stack IA Kubernetes. Ce qui devait être un simple `kubectl apply` s'est transformé en une leçon sur la gestion des ressources dans k8s.
+
+**Le piège des ressources manquantes**
+
+En voulant déployer un `HorizontalPodAutoscaler` pour mon API, j'ai découvert une règle fondamentale : sans `resources.requests.cpu` dans le manifest du deployment, le HPA ne peut pas calculer l'utilisation CPU du pod.
+
+Dans `spec.containers.resources`, la distinction est claire :
+
+- **`requests`** : ressource garantie au pod → Kubernetes place le pod sur un nœud qui a cette capacité disponible
+- **`limits`** : plafond de consommation → dépassement = OOMKilled
+
+Pour dimensionner ces valeurs, `kubectl top pod -n <namespace>` est devenu mon meilleur ami. Cette commande affiche la consommation réelle et aide à calibrer des requests/limits réalistes.
+
+**Pods vs Nœuds : l'équation de l'autoscaling**
+
+L'autre révélation de la semaine : l'autoscaling horizontal des pods n'a de sens que si l'autoscaling vertical des nœuds est activé. Pods = logique, Nœuds = physique. Le scheduler fait le matching entre les deux, mais si les nœuds sont à saturation, créer plus de pods ne sert à rien.
+
+Du coup, dans ma resource Terraform `google_container_cluster`, j'ai activé l'autoscaling des nœuds. Maintenant, quand mes pods ont besoin de plus de place, GKE provisionne automatiquement de nouveaux nœuds.
+
+**Le résultat**
+
+Ma stack gère désormais automatiquement la charge. Quand l'utilisation CPU dépasse 70%, de nouveaux pods FastAPI se déploient. Si besoin, de nouveaux nœuds apparaissent. Quand la charge redescend, tout se redimensionne à la baisse.
+
+C'est exactement ce genre de mécanique qui rend Kubernetes si puissant en production : je n'ai plus à deviner les besoins en ressources, le cluster s'adapte tout seul.
+
+***
+
 ## Magie du GitOps
 
 *13/07/2025*
