@@ -1,5 +1,58 @@
 # 2025
 
+## Ingress et TLS : sécuriser son API Kubernetes
+
+*27/07/2025*
+
+Cette semaine marque une transition personnelle : je finis bientôt mon contrat d'ingénieur système pour basculer vers un nouveau poste. C'est le moment parfait pour "anaboliser", comme en musculation où l'on alterne phases de destruction et de reconstruction. J'ai pris des notes sur plein de choses, accumulé énormément d'expérience et de nouvelles façons de penser l'automatisation. Et en ce moment je mets pas mal de choses en place (j'en parlerai dans une autre entrée).
+
+Mais ce n'est pas le sujet de cette semaine. Je profite du fait d'avoir accumulé beaucoup d'apprentissages avec mon projet k8s-ai-bootstrap (que je n'ai pas touché depuis une semaine, première fois que ça m'arrive !) pour retransmettre quelque chose, notamment sur la mise en place de la brique TLS/Ingress.
+
+
+**Le défi : HTTPS automatique**
+
+Mon objectif était simple : exposer mon API avec un certificat TLS automatique via cert-manager, en passant par l'ingress Traefik. Simple sur le papier, beaucoup moins dans la réalité.
+
+Premier piège : beaucoup de documentation utilise NGINX comme ingress controller. Sauf que k3d intègre Traefik par défaut. Résultat, j'ai failli installer NGINX en plus avant de réaliser qu'avoir plusieurs ingress controllers dans le même cluster demande une configuration spécifique avec `ingressClassName: traefik` dans le manifest.
+
+**Ingress vs Load Balancer : clarification**
+
+Deux concepts à distinguer :
+
+- **Load Balancer** : composant réseau qui reçoit le trafic entrant et le distribue vers les backends
+- **Ingress** : ressource Kubernetes qui définit les règles de routage HTTP vers les services du cluster
+
+L'Ingress n'est qu'une configuration, il faut un Ingress Controller (Traefik, NGINX) pour l'exécuter. Dans k3d, Traefik joue les deux rôles : load balancer intégré ET ingress controller.
+
+**Le piège de la configuration k3d**
+
+Point crucial découvert à mes dépens : sans exposer explicitement les ports 80 et 443 à la création du cluster, l'ingress HTTPS ne fonctionne pas.
+
+```bash
+k3d cluster create ai-bootstrap \
+  --port 80:80@loadbalancer \
+  --port 443:443@loadbalancer
+```
+
+Cette ligne map les ports du load balancer k3d vers la machine hôte. Sans ça, impossible d'accéder à mon API depuis l'extérieur en HTTPS.
+
+**ClusterIssuer : la clé de l'automatisation**
+
+Pour les certificats, j'ai opté pour un ClusterIssuer plutôt qu'un simple Issuer. La différence :
+
+- **Issuer** : limité à un namespace
+- **ClusterIssuer** : disponible pour tout le cluster
+
+Avec cert-manager + ClusterIssuer, mon certificat se génère automatiquement dès que l'ingress est déployé. Plus besoin d'intervention manuelle.
+
+**Le résultat**
+
+Mon API est maintenant accessible en HTTPS avec un certificat auto-signé. Le pipeline fonctionne : ingress → Traefik → service → pods. La prochaine étape sera d'intégrer Let's Encrypt et de tester sur GKE.
+
+Mais avant ça, on finit cette anabolisation dans le travail dans lequel je suis à fond !
+
+***
+
 ## Autoscaling Kubernetes : ressources et limites
 
 *20/07/2025*
@@ -25,9 +78,9 @@ Du coup, dans ma resource Terraform `google_container_cluster`, j'ai activé l'a
 
 **Le résultat**
 
-Ma stack gère désormais automatiquement la charge. Quand l'utilisation CPU dépasse 70%, de nouveaux pods FastAPI se déploient. Si besoin, de nouveaux nœuds apparaissent. Quand la charge redescend, tout se redimensionne à la baisse.
+Ma stack gère désormais automatiquement la charge. Quand l'utilisation CPU dépasse 70%, de nouveaux pods se déploient. Si besoin, de nouveaux nœuds apparaissent. Quand la charge redescend, tout se redimensionne à la baisse.
 
-C'est exactement ce genre de mécanique qui rend Kubernetes si puissant en production : je n'ai plus à deviner les besoins en ressources, le cluster s'adapte tout seul.
+C'est exactement ce genre de mécanique qui rend Kubernetes si puissant : je n'ai plus à deviner les besoins en ressources, le cluster s'adapte tout seul.
 
 ***
 
