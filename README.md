@@ -1,5 +1,69 @@
 # 2025
 
+## Why my logs only appear after restart ?
+
+*11/10/2025*
+
+**Note**: Starting from this entry, I'm switching this learning journal to English. It's part of my ongoing effort to improve my technical English after spending a month in Bali working on it.
+
+---
+
+**Context**
+
+Back to journaling after two and a half months away!
+
+And for good reason: finishing my systems engineer position (leaving behind a complete repo of docs and scripts for my successor), spent a month in Bali working on my English, returned to France early September, started a new cybersecurity job on the 8th, moved into my first solo apartment on the 19th. 
+
+Life turned upside down.
+
+Now I start to getting back into rhythm. This week, while debugging Falco on Kubernetes, I encountered a behavior that initially confused me: alerts only appearing after restarting the DaemonSet.
+
+**Exploration**
+
+The issue came from a performance optimization mechanism: **event buffering**.
+
+Most processes (especially those written in C) don't write their output directly to the terminal or logs in real time. They first store data in an internal buffer, then "flush" this buffer when:
+
+- The buffer is full,
+- The process explicitly calls `fflush()`,
+- Or the process terminates (via SIGTERM for example).
+
+This reduces the number of system calls, improving performance. But in a containerized environment where we observe via `stdout`, it creates "bursts" of logs that all appear together when the container stops or restarts.
+
+**Concrete case with Falco**
+
+```bash
+kubectl logs daemonsets/falco -c falco -f
+# No alerts visible in real time
+
+kubectl rollout restart daemonset falco
+# Events suddenly appear, with past timestamps
+```
+
+Falco buffers its stdout by default. Alerts are indeed generated, but they remain stuck in the buffer until shutdown.
+
+The solution: force unbuffered mode in the container args:
+
+```bash
+args:
+  - /usr/bin/falco
+  - --unbuffered
+```
+
+Result: events now display as they occur.
+
+**Key Discovery**
+
+What struck me is that this behavior can make you believe logs are missing when they're just... waiting. 
+
+During debugging, I was convinced Falco wasn't detecting anything. In reality, it was detecting everything, just not saying so until told to stop.
+
+**Impact and Next Steps**
+
+Now, whenever I configure an observability tool in Kubernetes, I systematically check if it offers an unbuffered mode.
+
+***
+
 ## Ingress et TLS : sécuriser son API Kubernetes
 
 *27/07/2025*
