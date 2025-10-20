@@ -1,0 +1,140 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: falco
+  namespace: falco
+
+spec:
+  selector:
+    matchLabels:
+      app: falco
+  template:
+    metadata:
+      labels:
+        app: falco
+    spec:
+      serviceAccountName: falco
+      containers:
+        - name: falco
+          image: docker.io/falcosecurity/falco
+          securityContext:
+            privileged: true
+          args:
+            - /usr/bin/falco
+            - --unbuffered   
+
+          volumeMounts:
+            - mountPath: /host/run/k3s/containerd/containerd.sock
+              name: container-engine-socket-5
+            - mountPath: /usr/share/falco/plugins
+              name: plugins-install-dir
+            - mountPath: /etc/falco/config.d
+              name: specialized-falco-configs
+            - mountPath: /root/.falco
+              name: root-falco-fs
+            - mountPath: /host/proc
+              name: proc-fs
+            - mountPath: /host/etc
+              name: etc-fs
+              readOnly: true
+            - mountPath: /host/dev
+              name: dev-fs
+              readOnly: true
+            - name: sys-fs
+              mountPath: /sys/module
+            - mountPath: /etc/falco/falco.yaml
+              name: falco-yaml
+              subPath: falco.yaml
+            - mountPath: /etc/falco/falco_rules.local.yaml
+              name: falco-custom-rules
+              subPath: falco_rules.local.yaml
+
+      initContainers:
+        - name: falco-driver-loader
+          image: docker.io/falcosecurity/falco-driver-loader
+          args:
+            - auto
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /root/.falco
+              name: root-falco-fs
+            - mountPath: /host/proc
+              name: proc-fs
+              readOnly: true
+            - mountPath: /host/boot
+              name: boot-fs
+              readOnly: true
+            - mountPath: /host/lib/modules
+              name: lib-modules
+            - mountPath: /host/usr
+              name: usr-fs
+              readOnly: true
+            - mountPath: /host/etc
+              name: etc-fs
+              readOnly: true
+              
+        - name: falcoctl-artifact-install
+          image: docker.io/falcosecurity/falcoctl
+          imagePullPolicy: IfNotPresent
+          args: 
+            - artifact
+            - install
+            - --log-format=json
+          securityContext:
+          volumeMounts:
+            - mountPath: /plugins
+              name: plugins-install-dir
+            - mountPath: /rulesfiles
+              name: rulesfiles-install-dir
+            - mountPath: /etc/falcoctl
+              name: falcoctl-config-volume
+
+      volumes:
+        - hostPath:
+            path: /run/k3s/containerd/containerd.sock
+          name: container-engine-socket-5
+        - name: specialized-falco-configs
+          emptyDir: {}
+        - name: plugins-install-dir
+          emptyDir: {}
+        - name: rulesfiles-install-dir
+          emptyDir: {}
+        - name: root-falco-fs
+          emptyDir: {}  
+        - name: boot-fs
+          hostPath:
+            path: /boot
+        - name: lib-modules
+          hostPath:
+            path: /lib/modules
+        - name: usr-fs
+          hostPath:
+            path: /usr
+        - name: etc-fs
+          hostPath:
+            path: /etc
+        - name: dev-fs
+          hostPath:
+            path: /dev
+        - name: sys-fs
+          hostPath:
+            path: /sys/module
+        - name: proc-fs
+          hostPath:
+            path: /proc
+        - name: falco-yaml
+          configMap:
+            name: falco
+            items:
+            - key: falco.yaml
+              path: falco.yaml
+        - name: falcoctl-config-volume
+          configMap: 
+            name: falco-falcoctl
+            items:
+              - key: falcoctl.yaml
+                path: falcoctl.yaml
+        - name: falco-custom-rules
+          configMap: 
+            name: falco-custom-rules

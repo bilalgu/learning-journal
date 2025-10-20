@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco
+  namespace: falco
+data:
+  falco.yaml: |-
+    append_output:
+    - suggested_output: true
+    buffered_outputs: false
+    file_output:
+      enabled: false
+    json_output: false
+    libs_logger:
+      enabled: true
+      severity: info
+    log_level: info
+    log_stderr: true
+    log_syslog: true
+    priority: debug
+    stdout_output:
+      enabled: true
+    syslog_output:
+      enabled: true
+
+    config_files:
+    - /etc/falco/config.d
+    rule_matching: first
+    rules_files:
+    - /etc/falco/falco_rules.yaml
+    - /etc/falco/falco_rules.local.yaml
+    - /etc/falco/rules.d
+
+    engine:
+      kind: modern_ebpf
+      modern_ebpf:
+        buf_size_preset: 4
+        cpus_for_each_buffer: 2
+        drop_failed_exit: false
+
+    load_plugins:
+    - container
+
+    plugins:
+    - init_config:
+        engines:
+          bpm:
+            enabled: true
+          containerd:
+            enabled: true
+            sockets:
+            - /run/host-containerd/containerd.sock
+          cri:
+            enabled: true
+            sockets:
+            - /run/containerd/containerd.sock
+            - /run/crio/crio.sock
+            - /run/k3s/containerd/containerd.sock
+            - /run/host-containerd/containerd.sock
+          docker:
+            enabled: true
+            sockets:
+            - /var/run/docker.sock
+          libvirt_lxc:
+            enabled: true
+          lxc:
+            enabled: true
+          podman:
+            enabled: true
+            sockets:
+            - /run/podman/podman.sock
+      library_path: libcontainer.so
+      name: container
+
+    watch_config_files: true
+    webserver:
+      enabled: true
+      k8s_healthz_endpoint: /healthz
+      listen_port: 8765
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-falcoctl
+  namespace: falco
+data:
+  falcoctl.yaml: |-
+    artifact:
+      allowedTypes:
+      - rulesfile
+      - plugin
+      install:
+        pluginsDir: /plugins
+        refs:
+        - falco-rules:4
+        - ghcr.io/falcosecurity/plugins/plugin/container:0.3.6
+        resolveDeps: true
+        rulesfilesDir: /rulesfiles
+    indexes:
+    - name: falcosecurity
+      url: https://falcosecurity.github.io/falcoctl/index.yaml
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-custom-rules
+  namespace: falco
+data:
+  falco_rules.local.yaml: |-
+    - rule: Demo Namespace Process Execution
+      desc: Detect any new process execution inside the demo namespace
+      condition: evt.type=execve and k8s.ns.name=demo 
+      output: Process started in demo namespace (user=%user.name proc=%proc.name cmdline=%proc.cmdline container_name=%container.name k8s_ns=%k8s.ns.name)
+      priority: INFO

@@ -1,5 +1,87 @@
 # 2025
 
+## How Falco Really Works
+
+*19/10/2025*
+
+**Context**
+
+This week, full immersion into Falco. And not just a standard installation: I wanted to understand how it really works before deploying anything.
+
+Starting point: [the official guide](https://falco.org/docs/getting-started/falco-kubernetes-quickstart/) suggests deployment via Helm. But Helm, for now, isn't my approach. I have this (healthy, I think) obsession with mastering what I deploy. Can't satisfy myself with a `helm install` without understanding what's happening underneath.
+
+Digging into Falco's GitHub repo, [I found the raw manifests](https://github.com/falcosecurity/deploy-kubernetes/tree/main/kubernetes/falco/templates). Mission: strip down these manifests to keep only what's strictly necessary for my baseline detection PoC. After quite a bit of headache, I made it work.
+
+**Exploration**
+
+What really interested me: how does Falco capture system events in real time? What's the actual difference with Sysdig?
+
+Falco is a **real-time syscall observer**, built on the same capture engine as Sysdig: **kernel probe**, **libscap**, and **libsinsp**.
+
+The mechanism relies on a **probe** injected into the kernel. This probe intercepts syscall activity (like `open()`, `execve()`, or `connect()`) and can take two forms: a **kernel module** (`falco.ko`) or an **eBPF program**.
+
+The probe writes summaries of each event into a **shared ring buffer** in RAM. This buffer is ephemeral, it doesn't persistently store anything. It only serves as a **communication tunnel** between the kernel and the Falco process.
+
+Falco runs in **user space** and continuously reads from this buffer. Each event then goes through the **rule engine**:
+
+1. Extract relevant fields (`user`, `pid`, `proc.name`, `k8s.ns.name`, etc.)
+2. Evaluate conditions defined in YAML rules
+3. If a rule matches → generate an alert
+
+Everything happens **in memory, in real time**. No syscalls written to disk.
+
+**Core Components**
+
+|Component|Layer|Role|
+|---|---|---|
+|`falco.ko` / eBPF probe|Kernel space|Captures syscalls (driver)|
+|`libscap`|User space|Reads events from `/dev/falco` (the buffer)|
+|`libsinsp`|User space|Decodes syscall fields into readable context|
+|`falco` binary|User space|Runs the rule engine and emits alerts|
+
+**Key Discovery**
+
+Falco and Sysdig share the same capture infrastructure, but with different purposes.
+
+- **Falco** interprets events on the fly and generates instant alerts
+- **Sysdig** captures and records traces for later forensic analysis
+
+Together, they form a complete chain:  
+**Falco = live detection → Sysdig = capture and replay → Analyst = forensic investigation**
+
+```mermaid
+flowchart TD
+
+subgraph KERNEL["Kernel Space"]
+    A["Container Process 
+    *(execve)*"]
+    A --> B["**Probe**
+    **Captures** Syscall"]
+    B --> D["Shared Ring Buffer (RAM)"]
+end
+
+subgraph USER["User Space"]
+    D --> E["**libscap**
+    **Reads** from /dev/falco"]
+    E --> F["**libsinsp**
+    **Decodes** (proc.name, etc.)"]
+
+    F --> G["Falco"]
+    G --> H["**Alert**"]
+
+    F --> I["Sysdig CLI/OSS"]
+    I --> J["*.scap* file **Stored**"]
+end
+```
+
+Now that I understand the underlying mechanics, I can fine-tune my Falco configuration according to my actual needs. 
+
+**More importantly**: I know exactly what's running in my cluster and why!
+
+→ [Stripped-down Falco manifests](./Ressources/falco/)
+
+***
+
 ## Why my logs only appear after restart ?
 
 *11/10/2025*
