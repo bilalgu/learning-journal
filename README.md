@@ -1,5 +1,415 @@
 # 2025
 
+## How Orchestrator Syscalls Enrichment Works
+
+*26/10/2025*
+
+This week, still deep in the **forensics toolchain**.  
+
+While building a _sidecar container_ meant to trigger Sysdig whenever Falco detects a specific rule pattern, I hit a wall: how to make Sysdig run **inside** a container, with enough visibility to capture system calls?
+
+To do that, I needed to containerize Sysdig itself, inside an image, inside a pod. 
+
+That experiment forced me to understand, from the ground up, **how Falco and Sysdig correlate kernel syscalls with container and orchestrator metadata** (PID, namespace, pod, service). 
+
+That “under-the-hood” curiosity turned into a full-blown lab: 398 lines! 
+
+### Are you ready ? 
+
+Enrichment is the process where a tool (like Sysdig or Falco) observes **kernel syscalls** and correlates them with **container and orchestrator context** (PID, namespace, pod, service).
+
+It forms the observability bridge between **kernel syscalls** and **Kubernetes metadata**.
+
+#### Core Principle
+
+Sysdig attaches to the kernel via a probe and reads system calls. 
+
+To enrich each event, it needs access to:
+
+| Purpose                     | Required                         | Layer      |
+| --------------------------- | -------------------------------- | ---------- |
+| Capture raw syscalls        | `/dev` (probe) + privileged mode | Kernel     |
+| Correlate PIDs / namespaces | `/proc`, `/sys/module`           | Host       |
+| Container metadata          | `/var/run/containerd.sock`       | Runtime    |
+| Orchestrator metadata       | ServiceAccount + RBAC            | API server |
+
+Each mount adds a new layer of visibility.
+
+---
+
+#### Lab - Observe Metadata Enrichment
+
+Goal: verify how each resource (mount, privilege, or permission) expands Sysdig visibility.
+
+Context: Ubuntu 24.04 host with Sysdig probe loaded.
+
+---
+
+##### 0. Prepare environment
+
+Build image *(cf [./install-sysdig.md](./install-sysdig.md))*:
+
+```bash
+docker build -t bilalguirre/falco-watcher:multistage .
+```
+
+Check probe presence on the host:
+
+```bash
+ls -l /dev/scap*
+```
+
+If empty:
+
+```bash
+sudo depmod -a
+sudo modprobe scap
+```
+
+---
+
+##### 1. Base container (no mounts)
+
+```bash
+docker run --rm -it bilalguirre/falco-watcher:multistage bash
+```
+
+```bash
+sysdig
+```
+
+Expected:
+
+```
+error opening device /dev/scap0
+```
+
+Reason: no access to `/dev`.
+
+---
+
+##### 2. Add `/dev` and privileged mode
+
+Run the container with access to the Sysdig device.
+
+```bash
+docker run --rm -it --privileged -v /dev:/dev bilalguirre/falco-watcher:multistage bash
+```
+
+Check Sysdig basic output.
+
+```bash
+sysdig | head
+```
+
+Sysdig collects syscall events.
+
+```
+10 06:08:41.223772823 0 <NA> (1919) < poll res=0 fds=3:?0 6:?0 7:?0 5:?0 8:?0 9:?0
+11 06:08:41.223840889 0 <NA> (1919) > ioctl fd=9 request=540F argument=7FFC20BB15D4
+12 06:08:41.223843630 0 <NA> (1919) < ioctl res=0
+13 06:08:41.223848344 0 <NA> (1919) > openat dirfd=-100(AT_FDCWD) name=/proc/6609/cmdline flags=1(O_RDONLY) mode=0
+...
+```
+
+Because the device is now mounted, Sysdig can access the kernel probe:
+
+```bash
+ls -l /dev/scap*
+```
+
+```
+cr-------- 1 root root 241, 0 Oct 24 06:45 /dev/scap0
+cr-------- 1 root root 241, 1 Oct 24 06:45 /dev/scap1
+```
+
+But there is still no process or container context.  
+The `<NA>` fields show that Sysdig cannot yet correlate kernel events with namespaces or containers.
+
+```bash
+sysdig -p "%proc.pid %proc.name %container.name" | head
+```
+
+**Output example**
+
+```
+-1 <NA> host
+-1 <NA> host
+-1 <NA> host
+-1 <NA> host
+-1 <NA> host
+-1 <NA> host
+-1 <NA> host
+-1 <NA> host
+-1 <NA> host
+-1 <NA> host
+```
+
+Process and container context are missing.
+
+##### 3. Add `/proc` and `/sys/module`
+
+Add the host’s `/proc` and `/sys/module` mounts to give Sysdig visibility into process and kernel module information.
+
+```bash
+docker run --rm -it --privileged \
+  -v /dev:/dev \
+  -v /proc:/proc \
+  -v /sys/module:/sys/module \
+  bilalguirre/falco-watcher:multistage bash
+```
+
+Check Sysdig output.
+
+```bash
+sysdig -p "%proc.pid %proc.name %container.name" | head
+```
+
+Sysdig now correlates kernel events with host processes.
+
+```
+742 k3s-server host
+4882 containerd-shim host
+...
+```
+
+Because `/proc` is mounted, Sysdig can read the process table and associate syscalls with running PIDs.  
+The `/sys/module` mount provides kernel module information without exposing the full `/sys` filesystem.
+
+However, container metadata is still missing.  
+The `container.name` field only shows `host`, meaning Sysdig cannot yet link syscalls to external containers.
+
+```bash
+sysdig -p "%proc.pid %proc.name %container.name" | grep -v host
+```
+
+**Output example**
+
+```
+(no output)
+```
+
+No container names or IDs are detected because the runtime socket (`/var/run/docker.sock`) is not yet mounted.  
+This socket is required for Sysdig to query the container runtime and enrich events with container-level context.
+
+Next, add the runtime socket to enable container metadata enrichment.
+
+---
+
+##### 4. Add `/var/run/docker.sock`
+
+Mount the Docker runtime socket to give Sysdig access to container metadata.
+
+```bash
+docker run --rm -it --privileged \
+  -v /dev:/dev \
+  -v /proc:/proc \
+  -v /sys/module:/sys/module \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  bilalguirre/falco-watcher:multistage bash
+```
+
+Check Sysdig process-to-container mapping.
+
+```bash
+sysdig -p "%proc.pid %proc.name %container.name %container.image.repository %container.id" | head
+```
+
+Sysdig now displays container names, images, and IDs.
+
+```
+6885 sysdig quirky_bohr bilalguirre/falco-watcher d81f072b8362
+6886 head  quirky_bohr bilalguirre/falco-watcher d81f072b8362
+...
+```
+
+Because the Docker socket is mounted, Sysdig can query the container runtime directly.  
+It retrieves container metadata (name, ID, runtime engine) and correlates syscalls with their originating containers.
+
+Verify that the socket is visible inside the container.
+
+```bash
+ls -l /var/run/docker.sock
+```
+
+```
+srw-rw---- 1 root docker 0 Oct 25 09:17 /var/run/docker.sock
+```
+
+Container metadata enrichment is now active.  
+Sysdig can correlate kernel syscalls with process, container, and namespace context.
+
+Next, to enrich with **Kubernetes metadata** (`k8s.ns.name`, `k8s.pod.name`), add RBAC access to the API server in a cluster environment.
+
+##### 5. Add Kubernetes API access (RBAC enrichment)
+
+To let Sysdig display Kubernetes metadata (`k8s.ns.name`, `k8s.pod.name`, etc.),  the pod must authenticate to the Kubernetes API and request pod information.
+
+This is achieved through a ServiceAccount and ClusterRoleBinding with read-only access.
+
+Create the RBAC manifest.
+
+```bash
+cat << 'EOF' > rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sysdig-viewer
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sysdig-viewer
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "namespaces"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sysdig-viewer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sysdig-viewer
+subjects:
+  - kind: ServiceAccount
+    name: sysdig-viewer
+    namespace: default
+EOF
+```
+
+Apply it.
+
+```bash
+kubectl apply -f rbac.yaml
+```
+
+Create the Sysdig pod manifest.
+
+```bash
+cat << 'EOF' > pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: watcher-pod
+spec:
+  serviceAccountName: sysdig-viewer
+  containers:
+    - name: watcher-container
+      image: bilalguirre/falco-watcher:multistage
+      command: ["/bin/sh", "-c", "sleep 3600"]
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - mountPath: /dev
+          name: dev-fs
+        - mountPath: /proc
+          name: proc-fs
+        - mountPath: /sys/module
+          name: sys-fs
+        - mountPath: /var/run/k3s/containerd/containerd.sock
+          name: runtime-socket
+  volumes:
+    - name: dev-fs
+      hostPath:
+        path: /dev
+    - name: proc-fs
+      hostPath:
+        path: /proc
+    - name: sys-fs
+      hostPath:
+        path: /sys/module
+    - name: runtime-socket
+      hostPath:
+        path: /var/run/k3s/containerd/containerd.sock
+EOF
+```
+
+Deploy and connect.
+
+```bash
+kubectl apply -f pod.yaml && kubectl get pods -w
+kubectl exec -it watcher-pod -- bash
+```
+
+Run Sysdig with Kubernetes enrichment fields.
+
+```bash
+sysdig -p "%proc.pid %proc.name %container.name %k8s.ns.name %k8s.pod.name" | head
+```
+
+**Expected output**
+
+```
+10266 sysdig watcher-container default watcher-pod
+10261 sysdig falco-watcher falco falco-v46s5
+10267 head  watcher-container default watcher-pod
+...
+```
+
+Sysdig now enriches each syscall with the namespace and pod that generated it. 
+
+The link between kernel events, containers, and Kubernetes metadata is complete!
+
+###### Cleanup
+
+When done, delete resources.
+
+```bash
+kubectl delete -f pod.yaml
+kubectl delete -f rbac.yaml
+```
+
+---
+
+#### Summary
+
+Each added mount or permission expands Sysdig’s understanding of the runtime environment.
+
+| Layer added               | Mount or config                         | Visibility gained             | Example field(s)                 |
+| ------------------------- | --------------------------------------- | ----------------------------- | -------------------------------- |
+| **Kernel access**         | `/dev` + `--privileged`                 | Capture of raw syscalls       | `write fd=1 size=42`             |
+| **Process layer**         | `/proc`                                 | Host process correlation      | `proc.pid`, `proc.name`          |
+| **Kernel module info**    | `/sys/module`                           | Access to probe info          | `evt.type`, `evt.category`       |
+| **Container runtime**     | `/var/run/docker.sock`                  | Container metadata enrichment | `container.name`, `container.id` |
+| **Kubernetes API (RBAC)** | `ServiceAccount` + `ClusterRoleBinding` | Orchestrator context          | `k8s.ns.name`, `k8s.pod.name`    |
+
+```mermaid
+flowchart TD
+
+%% === STRUCTURE ===
+K["**Kernel Layer**
+(/dev/scap*)"]
+H["**Host Layer**
+(/proc, /sys/module)"]
+C["**Container Runtime Layer**
+(/var/run/docker.sock)"]
+O["**Orchestrator Layer**
+(K8s API + RBAC)"]
+
+%% === FLOW ===
+K --> H
+H --> C
+C --> O
+O --> |"Kubernetes context"| Oout
+
+%% === OBSERVABLE OUTPUTS ===
+Kout(["*10 (1919) < poll res=0 ...*"])
+Hout(["*proc.pid, evt.type*"])
+Cout(["*container.name, container.image.repository*"])
+Oout(["*k8s.ns.name, k8s.pod.name*"])
+
+%% === LINKS OUTPUTS TO LAYERS ===
+K ---|"Raw syscalls"| Kout
+H --- |"PIDs / Namespaces"| Hout
+C --- |"Container metadata"| Cout
+```
+
+***
+
 ## How Falco Really Works
 
 *19/10/2025*
