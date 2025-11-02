@@ -1,5 +1,105 @@
 # 2025
 
+## When Your Binary Speaks the Wrong Dialect
+
+_02/11/2025_
+
+**Context**
+
+This week was intense on a governance project in a large IT group. Less hands-on technical work, more structural stuff I can't really detail yet since I just started.
+
+But I want to share something I learned recently while battling with [sysdig-inspect](https://github.com/draios/sysdig-inspect) installation. That tool gave me hell to install, but obstacles are the way, right?
+
+The struggle led me to understand **binary compatibility** properly. I now try to "anabolize" interesting concepts into atomic notes when I encounter them. Here's one of those notes.
+
+**Exploration**
+
+Binary compatibility boils down to this: a binary is **compatible** if all the libraries and system calls it expects exist and behave the same on the target system.
+
+The tricky part: **glibc** and **musl** are two different C standard library implementations. Think of them as different dialects of the same language. A program compiled against glibc may completely misunderstand musl's idioms, and vice versa.
+
+Concrete consequence: heavy applications (Java, Chrome, complex CLI tools) often fail on musl-based images like Alpine because they were compiled expecting glibc.
+
+One solution: multi-stage builds. Compile with `FROM debian-slim` (glibc), then copy the binary to `FROM alpine` (musl) for a lighter runtime image. But even that doesn't always work if the binary has deep glibc dependencies.
+
+**Lab: Running a glibc Binary on Alpine**
+
+I tested this with a simple experiment: run a Debian-compiled `ls` command inside Alpine.
+
+Start an Alpine container:
+
+```bash
+docker run --rm -it alpine sh
+```
+
+Download a Debian binary package:
+
+```bash
+wget https://ftp.debian.org/debian/pool/main/c/coreutils/coreutils_9.1-1_amd64.deb
+```
+
+Extract the `ls` binary:
+
+```bash
+apk add --no-cache binutils tar gzip
+ar x coreutils_9.1-1_amd64.deb
+tar --xform='s|./bin/ls|./bin/new-ls|' -xf data.tar.xz ./bin/ls
+```
+
+Try to run it:
+
+```bash
+./bin/new-ls
+```
+
+Result:
+
+```
+./bin/new-ls: not found
+```
+
+Wait, the file exists. What's happening?
+
+The binary was compiled against **glibc**, but Alpine only provides **musl**. The system literally doesn't know where to find `libc.so.6` (glibc's C library).
+
+Check dependencies:
+
+```bash
+ldd ./bin/new-ls
+```
+
+Output:
+
+```
+/lib64/ld-linux-x86-64.so.2 (0x7ecb2f59b000)
+Error loading shared library libselinux.so.1: No such file or directory
+libc.so.6 => /lib64/ld-linux-x86-64.so.2 (0x7ecb2f59b000)
+```
+
+The binary expects **glibc's libc.so.6**, which doesn't exist on Alpine.
+
+Compare with Alpine's native `ls`:
+
+```bash
+ldd $(which ls)
+```
+
+Output:
+
+```
+/lib/ld-musl-x86_64.so.1 (0x7f4d...)
+```
+
+This one links to **musl**, Alpine's own libc implementation.
+
+**Key Discovery**
+
+What struck me: the error message "not found" is misleading. The file exists, but the **dynamic linker** can't find the libraries it needs. It's not about the binary itself, it's about its runtime dependencies.
+
+This explains why so many Docker builds fail mysteriously when switching base images. It's not always about missing packages. Sometimes it's about incompatible C library dialects.
+
+---
+
 ## How Orchestrator Syscalls Enrichment Works
 
 *26/10/2025*
@@ -47,7 +147,23 @@ Context: Ubuntu 24.04 host with Sysdig probe loaded.
 
 ##### 0. Prepare environment
 
-Build image *(cf [./install-sysdig.md](./install-sysdig.md))*:
+Build image:
+
+```dockerfile
+FROM debian:bookworm-slim AS builder
+RUN apt-get update && \
+    apt-get install -y curl gnupg && \
+    curl -s https://download.sysdig.com/stable/install-sysdig | bash || true && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+FROM debian:bookworm-slim
+COPY --from=builder /usr/bin/sysdig /usr/bin/sysdig
+COPY --from=builder /usr/share/sysdig /usr/share/sysdig
+COPY --from=builder /lib/x86_64-linux-gnu/libm.so.6 /lib/x86_64-linux-gnu/
+COPY --from=builder /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/
+COPY --from=builder /lib/x86_64-linux-gnu/libdl.so.2 /lib/x86_64-linux-gnu/
+COPY --from=builder /lib64/ld-linux-x86-64.so.2 /lib64/
+```
 
 ```bash
 docker build -t bilalguirre/falco-watcher:multistage .
