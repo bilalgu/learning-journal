@@ -1,5 +1,73 @@
 # 2025
 
+## Come back with STRIDE !
+
+_10/11/2025_
+
+**Context**
+
+Back to school after a two-year gap. And there, surprise: I realize I've progressed enormously technically during that period. Labs and courses are now just enjoyable to follow.
+
+This week, a DevSecOps lab introduced me to **threat modeling** via the STRIDE framework. Objective: analyze a simplified e-commerce platform, identify potential threats, prioritize them, and propose countermeasures.
+
+First contact with **Threat Dragon** (I prefer Mermaid, but whatever). Also my first time hearing about the STRIDE model.
+
+So this is what i've learned:
+
+**Threat modeling** is a method that follows four steps:
+
+**1. Map the architecture and trust boundaries**
+
+We model the flows: User → Frontend → Backend → Database / Stripe. Each arrow represents a potentially vulnerable exchange zone.
+
+**2. Apply STRIDE to list threats**
+
+STRIDE is an acronym grouping six recurring threat categories:
+
+| Category                   | Target                        | Example in our e-commerce               |
+| :------------------------- | :---------------------------- | :-------------------------------------- |
+| **S**poofing               | Identity / authentication     | Bypass login or validate fake API token |
+| **T**ampering              | Data or code alteration       | SQL injection to modify product prices  |
+| **R**epudiation            | Lack of traceability          | No logs of admin actions                |
+| **I**nformation disclosure | Exposure of confidential data | Card numbers stored in plaintext        |
+| **D**enial of service      | Availability blocking         | Request flood saturating the backend    |
+| **E**levation of privilege | Rights escalation             | User granting themselves admin rights   |
+
+This framework forces systematic thinking. Every system component is scrutinized through these six angles.
+
+**3. Prioritize risks**
+
+Not all threats are equal. We evaluate each threat on two axes: **likelihood** and **impact**. This produces a prioritization matrix:
+
+|Threat|Likelihood|Impact|Priority|
+|:--|:--|:--|:--|
+|Manipulate URL/API → bypass auth|High|High|**High**|
+|SQL injection → modify DB|Medium|High|**Medium**|
+|No logs → impossible to trace|Low|Medium|**Low**|
+|Unencrypted sensitive data|Low|Very High|**High**|
+|Request flood → backend down|Medium|High|**Medium**|
+|Frontend-only role check|High|High|**High**|
+
+**4. Define countermeasures via Prevent / Detect / Respond**
+
+For each priority threat, we define three defense layers:
+
+**Example: Spoofing (authentication bypass)**
+
+- **Prevent**: All backend endpoints require a valid token.
+- **Detect**: Logs of failed access attempts (HTTP 401/403).
+- **Respond**: Automatic IP blocking after X attempts.
+
+This logic transforms an abstract list of vulnerabilities into an actionable security roadmap.
+
+With this lab I've also created atomic notes for each concept (Threat Modeling, STRIDE, Risk Prioritization, Prevent-Detect-Respond) in my knowledge management system. 
+
+Goal: being able to retrace the logic in 6 months without starting from scratch.
+
+[Microsoft Threat Modeling Tool Documentation](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool)
+
+---
+
 ## When Your Binary Speaks the Wrong Dialect
 
 _02/11/2025_
